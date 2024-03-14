@@ -1,7 +1,5 @@
 [BITS    16]
 
-;0b00000000
-
 %define WSCREEN 320
 %define HSCREEN 200
 
