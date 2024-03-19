@@ -1,5 +1,7 @@
 [BITS    16]
 
+;0b00000000
+
 %define WSCREEN 320
 %define HSCREEN 200
 
@@ -275,11 +277,11 @@ ProggyFont:
 
         charCOLON:
         db 0b00000000
-        db 0b01000000
-        db 0b01000000
+        db 0b00011000
+        db 0b00011000
         db 0b00000000
-        db 0b01000000
-        db 0b01000000
+        db 0b00011000
+        db 0b00011000
         db 0b00000000
         db 0b00000000
 
@@ -424,14 +426,14 @@ ProggyFont:
         db 0b10000100
 
         charI:
-        db 0b11100000
-        db 0b01000000
-        db 0b01000000
-        db 0b01000000
-        db 0b01000000
-        db 0b01000000
-        db 0b01000000
-        db 0b11100000
+        db 0b00111000
+        db 0b00010000
+        db 0b00010000
+        db 0b00010000
+        db 0b00010000
+        db 0b00010000
+        db 0b00010000
+        db 0b00111000
 
         charJ:
         db 0b01110000
@@ -724,8 +726,8 @@ ProggyFont:
         db 0b01000000
 
         charg:
+        db 0b00000000
         db 0b01111000
-        db 0b10001000
         db 0b10001000
         db 0b10001000
         db 0b01111000
