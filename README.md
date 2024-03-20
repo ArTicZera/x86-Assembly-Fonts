@@ -1,4 +1,4 @@
-# 8086-Assembly-Fonts
+# x86-Assembly-Fonts
 Use different bitmap fonts in your Real Mode OS! <br /><br />
 ![running](Image.png)
 # Building Instructions
