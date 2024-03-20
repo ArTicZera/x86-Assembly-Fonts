@@ -2,62 +2,35 @@
 [ORG 0x7E00]
 
 KernelMain:
-        xor     bx, bx
-
         ;jmp     CharTest
         jmp     StringTest
 
         jmp     $
 
 StringTest:
-        mov     al, 0x00
+        mov     al, 0x0F
 
-.StringLoop:
-        mov     si, testestr0
+        mov     si, aquickfox1
         call    PrintString
 
-        inc     al
+        mov     word [cursorX], 0x00
+        mov     word [cursorY], 0x03
 
-        mov     si, testestr1
+        mov     si, aquickfox2
         call    PrintString
 
-        inc     al
+        mov     word [cursorX], 0x00
+        mov     word [cursorY], 0x06
 
-        mov     si, testestr2
+        mov     si, numbers09
+        call    PrintString
+
+        mov     word [cursorX], 0x00
+        mov     word [cursorY], 0x08
+
+        mov     si, specchars
         call    PrintString
         
-        inc     al
-
-        mov     si, testestr3
-        call    PrintString
-
-        inc     al
-
-        mov     si, testestr4
-        call    PrintString
-
-        inc     al
-
-        mov     si, testestr5
-        call    PrintString
-
-        inc     al
-
-        mov     si, testestr6
-        call    PrintString
-
-        inc     al
-
-        mov     si, testestr7
-        call    PrintString
-
-        inc     al
-
-        inc     bx
-
-        cmp     bx, 25
-        jb      .StringLoop
-
         jmp     $
 
 CharTest:
@@ -80,14 +53,9 @@ CharTest:
 %include "Font/fontbmp.asm"
 %include "Font/font.asm"
 
-testestr0: db "Test0", 0x00, 0x00
-testestr1: db "Test1", 0x00, 0x00
-testestr2: db "Test2", 0x00, 0x00
-testestr3: db "Test3", 0x00, 0x00
-testestr4: db "Test4", 0x00, 0x00
-testestr5: db "Test5", 0x00, 0x00
-testestr6: db "Test6", 0x00, 0x00
-testestr7: db "Test7", 0x00, 0x00
-quickfox:  db "A Quick Brown Fox Jumps Over The Lazy Dog!", 0x00, 0x00
+aquickfox1: db "A QUICK BROWN FOX JUMPS OVER THE LAZY DOG.", 0x00, 0x00
+aquickfox2: db "a quick brown fox jumps over the lazy dog.", 0x00, 0x00
+numbers09: db "1234567890", 0x00, 0x00
+specchars: db "!#$%&'()*+,-./:<=>?@[\]^_`{|}~", 0x00, 0x00
 
 times (510 * 8) - ($ - $$) db 0x00
