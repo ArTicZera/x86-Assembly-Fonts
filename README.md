@@ -1,5 +1,5 @@
 # 8086-Assembly-Fonts
-Use different bitmap fonts in your Real Mode OS
+Use different bitmap fonts in your Real Mode OS! <br /><br />
 ![running](scrshot.png)
 # Building Instructions
 To compile it: `./make.sh` <br />
