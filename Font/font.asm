@@ -1,88 +1,115 @@
 [BITS    16]
 
-;SI = Char Bitmap from fontbmp.asm
-;DI = X pos
-;BP = Y pos
+;-----------------------------------------------------------------------
+
+;SI = Char Bitmap
 ;AL = Color
+;cursorX = X position (0 to 40)
+;cursorY = Y position (0 to 25)
 DrawChar:
         pusha
 
-        ;Set pixel function
+        call    SetupCursor
+
         mov     ah, 0x0C
 
-        ;BX = First byte of the bitmap
-        mov     bx, [si]
+        ;Save cursorX and cursorY
+        push    word [cursorX]
+        push    word [cursorY]
 
-        mov     cx, di
-        mov     dx, bp
+        ;Takes the index and multiply it by 8
+        ;To adjust it as chars per screen
+        shl     word [cursorX], 0x03
+        shl     word [cursorY], 0x03
+
+        ;Now CX and DX contains the result
+        mov     cx, [cursorX]
+        mov     dx, [cursorY]
+        
+        ;BX have the first byte of the char's bitmap
+        mov     bx, [si]
 
         jmp     .loopX
 
         .loopY:
-                pop     bx
-
+                ;Moves to BX the next char's bitmap byte
                 inc     si
                 mov     bx, [si]
 
-                mov     cx, di
+                ;Go back to where started but in the next line
+                mov     cx, [cursorX]
                 inc     dx
 
+                ;HFONT + StartY = FinalY
+                mov     di, HFONT
+                add     di, [cursorY]
+
+                ;If it reaches the FinalY, Then 
+                ;Go to the end the drawing routine
+                cmp     dx, di
+                jae     .end
+
                 .loopX:
+                        ;Checks the bitmap's last bit for 0 or 1
+                        ;0 -> Continue without drawing
+                        ;1 -> Draw the pixel
                         test    bx, 0x80
-                        jz      .continue  
+                        jz      .continue
 
-                        push    bx  
-
-                        mov     bx, HFONT
-                        add     bx, bp                  
-
-                        cmp     dx, bx
-                        jae     DrawChar.end
-
-                        pop     bx
-
+                        ;Set a pixel
                         int     0x10
 
                 .continue:
+                        ;Go to the next position 
                         inc     cx
 
+                        ;Moves the bits to the left, so
+                        ;We can get the next as last one
                         shl     bx, 0x01
 
-                        push    bx
+                        ;WFONT + StartX = FinalX
+                        mov     di, WFONT
+                        add     di, [cursorX]
 
-                        mov     bx, WFONT
-                        add     bx, di
-
-                        cmp     cx, bx
+                        ;If it reaches the FinalX
+                        ;Then go to the next line
+                        cmp     cx, di
                         jae     .loopY
 
-                        pop     bx
-
+                        ;Repeat the process till
+                        ;reaches FinalX
                         jmp     .loopX
+.end:
+        ;Restore cursorX and cursorY values
+        pop     word [cursorY]
+        pop     word [cursorX]
 
-DrawChar.end:
-        pop     bx
+        ;Goes to the next index
+        inc     word [cursorX]
+
+        call    SetupCursor
 
         popa
 
         ret
 
+;-----------------------------------------------------------------------
+
 ;SI = String
 ;AL = Color
-;DI = X pos
-;BP = Y pos
 PrintString:
         pusha
 
-        ;Moves 8px
-        shl     di, 0x03
-        shl     bp, 0x03
+        ;BX and AH needs to be 0x00
+        ;To PrintString work with no problems
+        xor     bx, bx
+        xor     ah, ah
 
         .getCharBMP:
                 push    ax
 
-                ;CharBMP = Char * 0x08
-                mov     al, [si] ;36
+                ;CharBMP = ASCII * 0x08
+                mov     al, [si]
                 shl     ax, 0x03
 
                 ;Save the result in BX
@@ -91,12 +118,15 @@ PrintString:
                 pop     ax
 
         .printChar:
+                ;BX has the char bitmap
+
+                ;Now we need to find the location of it
+                ;In The ProggyCleanTT Font.
+
                 push    si
 
-                ;Load ProggyFont in SI
+                ;FONT + CharBMP = CharBMP Index
                 mov     si, ProggyFont
-
-                ;Go to the char in the font
                 add     si, bx
 
                 call    DrawChar
@@ -104,39 +134,40 @@ PrintString:
                 pop     si
 
         .nextChar:
+                ;Goes to the next char in the string
                 inc     si
-                
-                add     di, 0x08
-
                 mov     bx, [si]
 
-                cmp     di, WSCREEN
-                jae     .nextLine
-
-                cmp     bx, 0x0F
-                je      .nextLineChar
-
+                ;Checks if reached 0x00
+                ;If yes, then exit printing routine
+                ;If no, then loops the next draw
                 cmp     bx, 0x00
-                jne     .getCharBMP
-
-                jmp     PrintString.end
-
-        .nextLine:
-                xor     di, di
-                add     bp, 0x0A
-
-                cmp     bp, HSCREEN
-                jae      PrintString.end
-
-                jmp     .getCharBMP
-
-        .nextLineChar:
-                xor     di, di
-                add     bp, 0x0A
-
-                jmp     .getCharBMP
+                jne      .getCharBMP 
 
 PrintString.end:
         popa
 
         ret
+
+;-----------------------------------------------------------------------
+
+SetupCursor:
+        ;If it goes to the last index
+        ;Jumps to the next line index
+        cmp     word [cursorX], 40
+        jae      .nextCursorLine
+        
+        jmp     SetupCursor.end
+
+        .nextCursorLine:
+                ;indexX = 0, indexY++
+                mov     word [cursorX], 0x00
+                inc     word [cursorY]
+
+SetupCursor.end:
+        ret
+
+;-----------------------------------------------------------------------
+
+cursorX: dw 0
+cursorY: dw 0
