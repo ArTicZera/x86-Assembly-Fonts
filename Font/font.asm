@@ -138,11 +138,22 @@ PrintString:
                 inc     si
                 mov     bx, [si]
 
+                cmp     bl, 0x0F
+                je      .endLine
+
                 ;Checks if reached 0x00
                 ;If yes, then exit printing routine
                 ;If no, then loops the next draw
-                cmp     bx, 0x00
+                cmp     bl, 0x00
                 jne      .getCharBMP 
+
+                jmp     PrintString.end
+
+        .endLine:
+                mov     word [cursorX], 0x00
+                inc     word [cursorY]
+
+                jmp     .nextChar
 
 PrintString.end:
         popa
