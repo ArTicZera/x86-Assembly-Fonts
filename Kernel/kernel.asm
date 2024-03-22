@@ -3,7 +3,19 @@
 
 KernelMain:
         ;jmp     CharTest
-        jmp     StringTest
+        ;jmp     StringTest
+
+        mov     si, test0
+        mov     al, 0x0A
+        call    PrintString
+
+        mov     si, test1
+        mov     al, 0x0A
+        call    PrintString
+
+        mov     si, test2
+        mov     al, 0x0A
+        call    PrintString
 
         jmp     $
 
@@ -57,5 +69,9 @@ aquickfox1: db "A QUICK BROWN FOX JUMPS OVER THE LAZY DOG.", 0x00, 0x00
 aquickfox2: db "a quick brown fox jumps over the lazy dog.", 0x00, 0x00
 numbers09: db "1234567890", 0x00, 0x00
 specchars: db "!#$%&'()*+,-./:<=>?@[\]^_`{|}~", 0x00, 0x00
+
+test0: db "Test0", 0x0F, 0x00
+test1: db "Test1", 0x0F, 0x00
+test2: db "Test2", 0x00
 
 times (510 * 8) - ($ - $$) db 0x00
